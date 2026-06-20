@@ -2,7 +2,6 @@ import sqlite3
 
 # Connect to database
 conn = sqlite3.connect("problems.db")
-
 # Create cursor object
 cursor = conn.cursor()
 
