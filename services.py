@@ -1,6 +1,18 @@
 import sqlite3
 from datetime import date
 
+def problem_to_dict(row):
+
+    return {
+        "id": row[0],
+        "title": row[1],
+        "difficulty": row[2],
+        "topic": row[3],
+        "solved": bool(row[4]),
+        "review_count": row[5],
+        "last_reviewed": row[6]
+
+    }
 
 def add_problem(title, difficulty, topic):
     # Connect to database
@@ -35,10 +47,17 @@ def get_all_problems():
     cursor.execute("SELECT * FROM problems")
     # Fetch all rows from query result
     rows = cursor.fetchall()
-    # Close
+
+    problems = []
+
+    for row in rows:
+        problems.append(
+            problem_to_dict(row)
+        )
+
     conn.close()
 
-    return rows
+    return problems
 
 def get_problem_by_id(problem_id):
     conn = sqlite3.connect("problems.db")
@@ -50,6 +69,10 @@ def get_problem_by_id(problem_id):
         (problem_id,)
     )
     problem = cursor.fetchone()
+
+    if problem:
+        return problem_to_dict(problem)
+
     conn.close()
 
     return problem
@@ -289,9 +312,16 @@ def get_problems_by_difficulty(difficulty):
 
     rows = cursor.fetchall()
 
+    problems = []
+
+    for row in rows:
+        problems.append(
+            problem_to_dict(row)
+        )
+
     conn.close()
 
-    return rows
+    return problems
 
 def get_problem_by_topic(topic):
     conn = sqlite3.connect("problems.db")
@@ -305,9 +335,16 @@ def get_problem_by_topic(topic):
 
     rows = cursor.fetchall()
 
+    problems = []
+
+    for row in rows:
+        problems.append(
+            problem_to_dict(row)
+        )
+
     conn.close()
 
-    return rows
+    return problems
 
 def search_problems(keyword):
     conn = sqlite3.connect("problems.db")
@@ -321,6 +358,12 @@ def search_problems(keyword):
 
     rows = cursor.fetchall()
 
+    problems = []
+    for row in rows:
+        problems.append(
+            problem_to_dict(row)
+        )
+
     conn.close()
 
-    return rows
+    return problems
