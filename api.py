@@ -2,7 +2,8 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from services import (
-    add_problem, get_all_problems, get_problem_by_id, update_problem_by_id, delete_problem_by_id, get_stats
+    add_problem, get_all_problems, get_problem_by_id, update_problem_by_id, delete_problem_by_id,
+    get_stats, review_problem_by_id, get_review_history, get_overdue_reviews
 )
 
 app = FastAPI()
@@ -62,6 +63,17 @@ def update_problem(problem_id:int, problem: ProblemCreate):
         detail="Problem not found"
     )
 
+@app.post("/problems/{problem_id}/review")
+def review_problem(problem_id:int):
+
+    reviewed = review_problem_by_id(problem_id)
+    if reviewed:
+        return {"message": "Problem reviewed successfully"}
+    raise HTTPException(
+        status_code=404,
+        detail="Problem not found"
+    )
+
 @app.delete("/problems/{problem_id}")
 def delete_problem(problem_id:int):
 
@@ -78,4 +90,13 @@ def stats():
 
     return get_stats()
 
+@app.get("/reviews")
+def reviews():
+
+    return get_review_history()
+
+@app.get("/review_overdue")
+def overdue_reviews():
+
+    return get_overdue_reviews()
 

@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import date
 from http.client import HTTPException
 
 
@@ -139,3 +140,109 @@ def get_stats():
         "hard": hard
 
     }
+
+def review_problem_by_id(problem_id):
+    conn = sqlite3.connect("problems.db")
+    cursor = conn.cursor()
+
+    # Increase review count
+    # Update last reviewed date
+    cursor.execute("""
+    UPDATE problems
+    SET review_count = review_count + 1,
+        last_reviewed = ?
+    WHERE id = ?
+    
+    """,(
+        str(date.today()),
+        problem_id
+    ))
+
+    # Check if any row was updated
+    if cursor.rowcount == 0:
+        conn.close()
+        return None
+
+    conn.commit()
+    conn.close()
+
+    return True
+
+def get_review_history():
+    conn = sqlite3.connect("problems.db")
+    cursor = conn.cursor()
+
+    # Get review information
+    cursor.execute("""
+    SELECT 
+        id,
+        title,
+        review_count,
+        last_reviewed
+    FROM problems
+    """)
+
+    rows = cursor.fetchall()
+
+    conn.close()
+
+    reviews = []
+
+    for row in rows:
+
+        reviews.append({
+            "id": row[0],
+            "title": row[1],
+            "review_count": row[2],
+            "last_reviewed": row[3]
+
+        })
+
+    return reviews
+
+def get_overdue_reviews():
+    conn = sqlite3.connect("problems.db")
+    cursor = conn.cursor()
+
+    # Get review information
+    cursor.execute("""
+    SELECT
+        id,
+        title,
+        review_count,
+        last_reviewed
+    FROM problems
+    WHERE last_reviewed IS NOT NULL
+    
+    """)
+
+    rows = cursor.fetchall()
+
+    conn.close()
+
+    overdue = []
+
+    today = date.today()
+
+    for row in rows:
+
+        if row[3] is None:
+            continue
+
+        reviewed_date = date.fromisoformat(row[3])
+
+        days_since_review = (today - reviewed_date).days
+
+        if days_since_review >= 30:
+
+            overdue.append({
+                "id": row[0],
+                "title": row[1],
+                "review_count": row[2],
+                "last_reviewed": row[3],
+                "days_since_review": days_since_review
+
+            })
+
+    return overdue
+
