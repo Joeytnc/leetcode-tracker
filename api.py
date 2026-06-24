@@ -3,7 +3,8 @@ from pydantic import BaseModel
 
 from services import (
     add_problem, get_all_problems, get_problem_by_id, update_problem_by_id, delete_problem_by_id,
-    get_stats, review_problem_by_id, get_review_history, get_overdue_reviews
+    get_stats, review_problem_by_id, get_review_history, get_overdue_reviews, mark_problem_solved,
+    get_problems_by_difficulty, get_problem_by_topic, search_problems
 )
 
 app = FastAPI()
@@ -33,6 +34,21 @@ def create_problems(problem: ProblemCreate):
 def get_problems():
 
     return get_all_problems()
+
+@app.get("/problems/search")
+def search(keyword: str):
+
+    return search_problems(keyword)
+
+@app.get("/problems/topic")
+def get_problems_topic(topic: str):
+
+    return get_problem_by_topic(topic)
+
+@app.get("/problems/filter")
+def filter_problems(difficulty: str):
+
+    return get_problems_by_difficulty(difficulty)
 
 @app.get("/problems/{problem_id}")
 def get_problem(problem_id:int):
@@ -74,6 +90,19 @@ def review_problem(problem_id:int):
         detail="Problem not found"
     )
 
+@app.post("/problems/{problem_id}/solve")
+def solve_problem(problem_id:int):
+
+    solved = mark_problem_solved(problem_id)
+
+    if solved:
+        return {"message": "Problem marked as solved"}
+
+    raise HTTPException(
+        status_code=404,
+        detail="Problem not found"
+    )
+
 @app.delete("/problems/{problem_id}")
 def delete_problem(problem_id:int):
 
@@ -95,8 +124,10 @@ def reviews():
 
     return get_review_history()
 
-@app.get("/review_overdue")
+@app.get("/reviews/overdue")
 def overdue_reviews():
 
     return get_overdue_reviews()
+
+
 

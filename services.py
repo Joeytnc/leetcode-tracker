@@ -1,6 +1,5 @@
 import sqlite3
 from datetime import date
-from http.client import HTTPException
 
 
 def add_problem(title, difficulty, topic):
@@ -131,13 +130,20 @@ def get_stats():
                    )
     hard = cursor.fetchone()[0]
 
+    # Solved problems count
+    cursor.execute("SELECT COUNT(*) FROM problems WHERE solved = ?",
+                   (1,)
+                   )
+    solved = cursor.fetchone()[0]
+
     conn.close()
 
     return {
         "total": total,
         "easy": easy,
         "medium": medium,
-        "hard": hard
+        "hard": hard,
+        "solved": solved
 
     }
 
@@ -246,3 +252,75 @@ def get_overdue_reviews():
 
     return overdue
 
+def mark_problem_solved(problem_id):
+    conn = sqlite3.connect("problems.db")
+    cursor = conn.cursor()
+
+    # Mark problem as solved
+    cursor.execute("""
+    UPDATE problems
+    SET solved = 1
+    WHERE id = ?
+    
+    """,(
+        problem_id,
+    ))
+
+    # Check if any row was updated
+    if cursor.rowcount == 0:
+        conn.close()
+        return None
+
+    conn.commit()
+    conn.close()
+
+    return True
+
+def get_problems_by_difficulty(difficulty):
+    conn = sqlite3.connect("problems.db")
+    cursor = conn.cursor()
+
+    # Get problems by difficulty
+    cursor.execute("""
+    SELECT * FROM problems
+    WHERE difficulty = ?
+    """,(difficulty,)
+                   )
+
+    rows = cursor.fetchall()
+
+    conn.close()
+
+    return rows
+
+def get_problem_by_topic(topic):
+    conn = sqlite3.connect("problems.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT * FROM problems
+    WHERE topic = ?
+    """,(topic,)
+                   )
+
+    rows = cursor.fetchall()
+
+    conn.close()
+
+    return rows
+
+def search_problems(keyword):
+    conn = sqlite3.connect("problems.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT * FROM problems
+    WHERE title LIKE ?
+    """,(f"%{keyword}%",)
+                   )
+
+    rows = cursor.fetchall()
+
+    conn.close()
+
+    return rows
