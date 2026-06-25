@@ -1,18 +1,25 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from enum import Enum
 
 from services import (
     add_problem, get_all_problems, get_problem_by_id, update_problem_by_id, delete_problem_by_id,
     get_stats, review_problem_by_id, get_review_history, get_overdue_reviews, mark_problem_solved,
-    get_problems_by_difficulty, get_problem_by_topic, search_problems
+    get_problems_by_difficulty, get_problem_by_topic, search_problems, problem_exists
 )
 
 app = FastAPI()
 
+class Difficulty(str, Enum):
+    EASY = "Easy"
+    MEDIUM = "Medium"
+    HARD = "Hard"
+
 class ProblemCreate(BaseModel):
     title: str
-    difficulty: str
+    difficulty: Difficulty
     topic: str
+
 
 @app.get("/")
 def root():
@@ -21,6 +28,13 @@ def root():
 
 @app.post("/problems/")
 def create_problems(problem: ProblemCreate):
+
+    if problem_exists(problem.title):
+
+        raise HTTPException(
+            status_code=400,
+            detail="Problem already exists"
+        )
 
     add_problem(
         problem.title,
@@ -128,6 +142,4 @@ def reviews():
 def overdue_reviews():
 
     return get_overdue_reviews()
-
-
 

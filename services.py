@@ -367,3 +367,20 @@ def search_problems(keyword):
     conn.close()
 
     return problems
+
+def problem_exists(title):
+    conn = sqlite3.connect("problems.db")
+    cursor = conn.cursor()
+
+    # Check if title already exists
+    cursor.execute("""
+    SELECT * FROM problems
+    WHERE LOWER(title) = LOWER(?)
+    """,(title,)
+                   )
+
+    problem = cursor.fetchone()
+
+    conn.close()
+
+    return problem is not None
