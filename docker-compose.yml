@@ -1,0 +1,13 @@
+services:
+  leetcode-tracker:
+    build: .
+    container_name: leetcode-tracker
+
+    ports:
+      - "8000:8000"
+
+    volumes:
+      - ./data:/app/data
+
+    restart: unless-stopped
+

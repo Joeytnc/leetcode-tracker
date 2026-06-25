@@ -1,4 +1,4 @@
-import sqlite3
+from database import get_connection
 from datetime import date
 
 def problem_to_dict(row):
@@ -16,7 +16,7 @@ def problem_to_dict(row):
 
 def add_problem(title, difficulty, topic):
     # Connect to database
-    conn = sqlite3.connect("problems.db")
+    conn = get_connection()
     # Create cursor object
     cursor = conn.cursor()
 
@@ -40,7 +40,7 @@ def add_problem(title, difficulty, topic):
     conn.close()
 
 def get_all_problems():
-    conn = sqlite3.connect("problems.db")
+    conn = get_connection()
     cursor = conn.cursor()
 
     # Get all problems
@@ -60,7 +60,7 @@ def get_all_problems():
     return problems
 
 def get_problem_by_id(problem_id):
-    conn = sqlite3.connect("problems.db")
+    conn = get_connection()
     cursor = conn.cursor()
 
     # Get one problem by id
@@ -78,7 +78,7 @@ def get_problem_by_id(problem_id):
     return problem
 
 def update_problem_by_id(problem_id, title, difficulty, topic):
-    conn = sqlite3.connect("problems.db")
+    conn = get_connection()
     cursor = conn.cursor()
 
     # Update problem by id
@@ -107,7 +107,7 @@ def update_problem_by_id(problem_id, title, difficulty, topic):
     return True
 
 def delete_problem_by_id(problem_id):
-    conn = sqlite3.connect("problems.db")
+    conn = get_connection()
     cursor = conn.cursor()
 
     # Delete problem by id
@@ -127,7 +127,7 @@ def delete_problem_by_id(problem_id):
     return True
 
 def get_stats():
-    conn = sqlite3.connect("problems.db")
+    conn = get_connection()
     cursor = conn.cursor()
 
     # Count all problems
@@ -171,7 +171,7 @@ def get_stats():
     }
 
 def review_problem_by_id(problem_id):
-    conn = sqlite3.connect("problems.db")
+    conn = get_connection()
     cursor = conn.cursor()
 
     # Increase review count
@@ -198,7 +198,7 @@ def review_problem_by_id(problem_id):
     return True
 
 def get_review_history():
-    conn = sqlite3.connect("problems.db")
+    conn = get_connection()
     cursor = conn.cursor()
 
     # Get review information
@@ -229,8 +229,8 @@ def get_review_history():
 
     return reviews
 
-def get_overdue_reviews():
-    conn = sqlite3.connect("problems.db")
+def get_today_reviews():
+    conn = get_connection()
     cursor = conn.cursor()
 
     # Get review information
@@ -264,14 +264,16 @@ def get_overdue_reviews():
 
         interval = get_review_interval(row[2])
 
-        print(
-            "title:", row[1],
-            "review_count:", row[2],
-            "days:", days_since_review,
-            "interval:", interval
-        )
+        # print(
+        #     "title:", row[1],
+        #     "review_count:", row[2],
+        #     "days:", days_since_review,
+        #     "interval:", interval
+        # )
 
         if days_since_review >= interval:
+
+            days_overdue = days_since_review - interval
 
             overdue.append({
                 "id": row[0],
@@ -280,12 +282,18 @@ def get_overdue_reviews():
                 "last_reviewed": row[3],
                 "days_since_review": days_since_review,
                 "review_interval": interval,
+                "days_overdue": days_overdue,
             })
+
+    overdue.sort(
+        key=lambda problem: problem["days_overdue"],
+        reverse=True
+    )
 
     return overdue
 
 def mark_problem_solved(problem_id):
-    conn = sqlite3.connect("problems.db")
+    conn = get_connection()
     cursor = conn.cursor()
 
     # Mark problem as solved
@@ -309,7 +317,7 @@ def mark_problem_solved(problem_id):
     return True
 
 def get_problems_by_difficulty(difficulty):
-    conn = sqlite3.connect("problems.db")
+    conn = get_connection()
     cursor = conn.cursor()
 
     # Get problems by difficulty
@@ -333,7 +341,7 @@ def get_problems_by_difficulty(difficulty):
     return problems
 
 def get_problem_by_topic(topic):
-    conn = sqlite3.connect("problems.db")
+    conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -367,7 +375,7 @@ def get_review_interval(review_count):
     return intervals.get(review_count, 60)
 
 def search_problems(keyword):
-    conn = sqlite3.connect("problems.db")
+    conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -389,7 +397,7 @@ def search_problems(keyword):
     return problems
 
 def problem_exists(title):
-    conn = sqlite3.connect("problems.db")
+    conn = get_connection()
     cursor = conn.cursor()
 
     # Check if title already exists

@@ -1,14 +1,17 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from enum import Enum
-
 from services import (
     add_problem, get_all_problems, get_problem_by_id, update_problem_by_id, delete_problem_by_id,
-    get_stats, review_problem_by_id, get_review_history, get_overdue_reviews, mark_problem_solved,
+    get_stats, review_problem_by_id, get_review_history, get_today_reviews, mark_problem_solved,
     get_problems_by_difficulty, get_problem_by_topic, search_problems, problem_exists
 )
+from database import initialize_database
+
+initialize_database()
 
 app = FastAPI()
+
 
 class Difficulty(str, Enum):
     EASY = "Easy"
@@ -138,8 +141,14 @@ def reviews():
 
     return get_review_history()
 
-@app.get("/reviews/due")
+@app.get("/reviews/overdue")
 def overdue_reviews():
 
-    return get_overdue_reviews()
+    return get_today_reviews()
+
+@app.get("/reviews/today")
+def today_reviews():
+
+    return get_today_reviews()
+
 

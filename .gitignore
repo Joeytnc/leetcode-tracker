@@ -1,7 +1,13 @@
 # SQLite database
-*.db
+data/*.db
 
 # Python cache
 __pycache__/
-*.pyc
+*.py[cod]
 
+# Virtual environment
+.venv/
+venv/
+
+# IDE
+.idea/
