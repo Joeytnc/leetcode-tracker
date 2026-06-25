@@ -262,15 +262,24 @@ def get_overdue_reviews():
 
         days_since_review = (today - reviewed_date).days
 
-        if days_since_review >= 30:
+        interval = get_review_interval(row[2])
+
+        print(
+            "title:", row[1],
+            "review_count:", row[2],
+            "days:", days_since_review,
+            "interval:", interval
+        )
+
+        if days_since_review >= interval:
 
             overdue.append({
                 "id": row[0],
                 "title": row[1],
                 "review_count": row[2],
                 "last_reviewed": row[3],
-                "days_since_review": days_since_review
-
+                "days_since_review": days_since_review,
+                "review_interval": interval,
             })
 
     return overdue
@@ -346,6 +355,17 @@ def get_problem_by_topic(topic):
 
     return problems
 
+def get_review_interval(review_count):
+    intervals = {
+        0: 3,
+        1: 7,
+        2: 14,
+        3: 30,
+        4: 60
+    }
+
+    return intervals.get(review_count, 60)
+
 def search_problems(keyword):
     conn = sqlite3.connect("problems.db")
     cursor = conn.cursor()
@@ -384,3 +404,4 @@ def problem_exists(title):
     conn.close()
 
     return problem is not None
+

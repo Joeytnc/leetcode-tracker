@@ -138,7 +138,7 @@ def reviews():
 
     return get_review_history()
 
-@app.get("/reviews/overdue")
+@app.get("/reviews/due")
 def overdue_reviews():
 
     return get_overdue_reviews()
