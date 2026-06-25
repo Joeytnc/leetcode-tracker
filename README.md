@@ -2,12 +2,16 @@
 
 A RESTful API built with FastAPI for tracking LeetCode practice, review progress, and spaced repetition schedules.
 
+## API Preview
+
+![Swagger UI](images/swagger-ui.png)
+
 ---
 
 ## Features
 
 - RESTful API built with FastAPI
-- Add, update, and delete LeetCode problems
+- Full CRUD operations for LeetCode problems
 - Search problems by title
 - Filter problems by difficulty
 - Filter problems by topic
@@ -18,6 +22,7 @@ A RESTful API built with FastAPI for tracking LeetCode practice, review progress
 - Prevent duplicate problem entries
 - Interactive Swagger API documentation
 - Dockerized deployment with Docker Compose
+- Persistent SQLite storage using Docker volumes
 
 ---
 
@@ -36,10 +41,12 @@ A RESTful API built with FastAPI for tracking LeetCode practice, review progress
 
 ```text
 leetcode-tracker/
+├── data/
+│   ├── .gitkeep
+│   └── problems.db        # Generated automatically (ignored by Git)
 ├── api.py                 # REST API endpoints
 ├── services.py            # Business logic
-├── database.py            # Database initialization
-├── leetcode_sync.py       # LeetCode synchronization utility
+├── database.py            # Database initialization and connection management
 ├── Dockerfile
 ├── docker-compose.yml
 ├── requirements.txt
@@ -48,38 +55,38 @@ leetcode-tracker/
 └── README.md
 ```
 
-> **Note:** `problems.db` is generated automatically at runtime and is not tracked in the repository.
+> **Note:** `data/problems.db` is generated automatically at runtime and is excluded from version control.
 
 ---
 
 ## Installation
 
-Clone the repository
+Clone the repository:
 
 ```bash
 git clone https://github.com/Joeytnc/leetcode-tracker.git
 cd leetcode-tracker
 ```
 
-Install dependencies
+Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Initialize the database
+Initialize the database (local development only):
 
 ```bash
 python database.py
 ```
 
-Run the application
+Run the application:
 
 ```bash
 uvicorn api:app --reload
 ```
 
-The API will be available at:
+API:
 
 ```text
 http://localhost:8000
@@ -95,16 +102,22 @@ http://localhost:8000/docs
 
 ## Run with Docker
 
-Build and start the application
+Build and start the application:
 
 ```bash
 docker compose up --build
 ```
 
-Stop the application
+Stop the application:
 
 ```bash
 docker compose down
+```
+
+The SQLite database is automatically created and persisted at:
+
+```text
+data/problems.db
 ```
 
 ---
@@ -131,10 +144,8 @@ docker compose down
 
 ---
 
-## Future Improvements
+## Roadmap
 
-- JWT authentication
-- PostgreSQL support
 - Pagination
 - Sorting
 - Unit testing
@@ -147,12 +158,12 @@ docker compose down
 
 This project demonstrates:
 
-- RESTful API development
-- CRUD operations
-- FastAPI application design
+- RESTful API development with FastAPI
+- CRUD operations and layered application architecture
 - SQLite database management
+- Database connection abstraction
 - Request validation with Pydantic
-- Spaced repetition scheduling
+- Spaced repetition scheduling logic
 - Docker containerization
-- Docker Compose deployment
-- Backend project organization
+- Docker Compose with persistent data volumes
+- Backend project organization and modular design
